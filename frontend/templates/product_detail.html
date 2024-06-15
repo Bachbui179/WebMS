@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container mt-5 flex-grow-1">
+    <div class="card mb-4">
+        <img src="{{ product.thumbnail }}" class="card-img-top" alt="{{ product.title }}">
+        <div class="card-body">
+            <h1 class="card-title">{{ product.title }}</h1>
+            <p class="card-text">{{ product.description }}</p>
+            <p class="card-text"><strong>Price: </strong>${{ product.price }}</p>
+            <p class="card-text"><strong>Category: </strong>{{ product.category }}</p>
+            <p class="card-text"><strong>Products left: </strong>{{ product.stock }}</p>
+        </div>
+    </div>
+    <h3>Reviews</h3>
+    <ul class="list-group">
+        {% for review in product.reviews %}
+        <li class="list-group-item">
+            <strong>{{ review.reviewerName }}:</strong> {{ review.comment }} <br>
+            <small class="text-muted">Rating: {{ review.rating }} - {{ review.date }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+</main>
+{% endblock content %}
+    

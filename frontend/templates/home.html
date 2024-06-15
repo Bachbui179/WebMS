@@ -1,0 +1,50 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="hero-section d-flex flex-column align-items-center">
+    <div class="hero-text d-flex flex-column justify-content-center">
+        <h1>Welcome to E-Shopper</h1>
+        <p>Your one-stop shop for all your needs</p>
+        <form action="{% url 'products' %}">
+            <button type="submit" class="btn btn-primary">See our products</button>
+        </form>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Wide Variety</h5>
+                    <p class="card-text">
+                        Choose from a wide range of products across various
+                        categories.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Best Prices</h5>
+                    <p class="card-text">
+                        Get the best deals and discounts on top products.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Fast Shipping</h5>
+                    <p class="card-text">
+                        Enjoy fast and reliable shipping on all orders.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
