@@ -9,10 +9,9 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all routes
 
 # Configuration for different services
 services = {
-    'auth_service': 'http://localhost:3001',
+    'auth_service': 'http://localhost:3000',
     'product_service': 'http://localhost:3002',
     'order_service': 'http://localhost:3003',
-    'customer_service': 'http://localhost:3004'
 }
 
 product_service_url = 'http://localhost:3002'

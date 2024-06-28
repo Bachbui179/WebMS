@@ -19,12 +19,12 @@ def login_view(request):
                 user_data = user_response.json()
 
                 # Set the token and user data in cookies
-                response = render(request, 'home.html')
+                response = redirect('/home/')
                 response.set_cookie('access_token', token)
                 response.set_cookie('user_data', json.dumps(user_data))
                 return response
-
-            return render(request, 'login.html', {'error': 'Failed to fetch user data'})
+            else:
+                return render(request, 'login.html', {'error': 'Failed to fetch user data'})
             
         else:
             return render(request, 'login.html', {'error': 'Invalid credentials'})
@@ -46,7 +46,7 @@ def home_view(request):
     if response.status_code == 200:
         products = response.json().get('products', [])
         categories = set(product.get('category') for product in products)
-        return render(request, 'base.html', {'products': products, 'categories': categories})
+        return render(request, 'home.html', {'products': products, 'categories': categories})
     else:
         return redirect('login')
 
@@ -57,8 +57,10 @@ def product_view(request):
     response = requests.get('http://localhost:5000/product_service/products', headers=headers)
     
     if response.status_code == 200:
-        products = response.json().get('products', [])
+        products_data = response.json().get('products', [])
+        products = [item for sublist in products_data for item in sublist['products']]
         categories = set(product.get('category') for product in products)
+        print(products)
         return render(request, 'products.html', {'products': products, 'categories': categories})
     else:
         return redirect('login.html')
@@ -77,10 +79,17 @@ def product_detail(request, id):
     response = requests.get('http://localhost:5000/product_service/products', headers=headers)
     
     if response.status_code == 200:
-        products = response.json().get('products', [])
+        products_data = response.json().get('products', [])
+        products = [item for sublist in products_data for item in sublist['products']]
         print(products)
         product = get_product_by_id(products, id)
     return render(request, 'product_detail.html', {'product': product})
+
+def cart(request): 
+    token = request.COOKIES.get('access_token')
+    headers = {'Authorization': f'Bearer {token}'}
+    
+    response = requests.get('http://localhost:5000/order_service/orders', headers=headers)
 
 def error_404(request, exception):
     return render(request, '404_Not_Found.html')

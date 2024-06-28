@@ -37,7 +37,7 @@ def get_products():
         return jsonify({'error': 'Invalid or expired token'}), 401
 
     try:
-        products_list = list(collection.find({}, {'_id': 0}))  # Fetch all products, exclude MongoDB _id
+        products_list = list(collection.find({}, {'_id': 0}))
         return jsonify({'products': products_list}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -57,7 +57,7 @@ def get_product(product_id):
         if product:
             return jsonify(product), 200
         else:
-            return jsonify({'error': 'Product not found'}), 404
+            return jsonify({'error': 'Product not found :()'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
