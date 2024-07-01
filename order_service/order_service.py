@@ -60,47 +60,44 @@ def get_cart():
 
 @app.route('/order/add', methods=['POST'])
 def add_to_cart():
+    data = request.get_json()
+    email = data.get('email')
+    product_id = data.get('product_id')
+    quantity = data.get('quantity')
     auth_header = request.headers.get('Authorization')
-    if auth_header is None or not auth_header.startswith('Bearer '):
+
+    if not auth_header or not auth_header.startswith('Bearer '):
         return jsonify({'error': 'Authorization header missing or invalid'}), 401
 
     token = auth_header.split(" ")[1]
     if not verify_token(token):
         return jsonify({'error': 'Invalid or expired token'}), 401
 
-    data = request.get_json()
-    email = data.get('email')
-    product_id = data.get('product_id')
-    quantity = data.get('quantity')
-
-    if not email or not product_id or not quantity:
-        return jsonify({'error': 'Missing data'}), 400
-
-    user = user_collection.find_one({"users.email": email}, {"_id": 0, "users.$": 1})
-    
-    if user:
-        user = user['users'][0]
-        product_details = get_product_details(product_id, token)
-        if not product_details:
-            return jsonify({'error': 'Product not found'}), 404
-
-        cart_item = {
-            "product_id": product_id,
-            "title": product_details['title'],
-            "price": product_details['price'],
-            "discount_percentage": product_details['discount_percentage'],
-            "stock": product_details['stock'],
-            "quantity": quantity
-        }
-
-        user_collection.update_one(
-            {"users.email": email},
-            {"$push": {"users.$.cart": cart_item}}
-        )
-
-        return jsonify({'message': 'Product added to cart'}), 200
-    else:
+    user = user_collection.find_one({"users.email": email}, {"users.$": 1})
+    if not user:
         return jsonify({'error': 'User not found'}), 404
+
+    product = get_product_details(product_id, token)
+    if not product:
+        return jsonify({'error': 'Product not found'}), 404
+
+    user_data = user['users'][0]
+    cart_item = {
+        "product_id": product['id'],
+        "title": product['title'],
+        "price": product['price'],
+        "discount_percentage": product['discount_percentage'],
+        "stock": product['stock'],
+        "quantity": quantity
+    }
+
+    # Update cart in the user document
+    user_collection.update_one(
+        {"users.email": email},
+        {"$push": {"users.$.cart": cart_item}}
+    )
+
+    return jsonify({'message': 'Product added to cart successfully'}), 200
 
 if __name__ == '__main__':
     app.run(port=3001)
