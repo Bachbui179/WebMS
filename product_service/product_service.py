@@ -53,13 +53,18 @@ def get_product(product_id):
         return jsonify({'error': 'Invalid or expired token'}), 401
 
     try:
-        product = collection.find_one({'id': product_id}, {'_id': 0})  # Fetch specific product by id, exclude MongoDB _id
-        if product:
-            return jsonify(product), 200
-        else:
+        # Load the entire document
+        document = collection.find_one({}, {'_id': 0})
+        if document and 'products' in document:
+            # Iterate through products to find the product with the given product_id
+            for product in document['products']:
+                if product['id'] == product_id:
+                    return jsonify(product), 200
             return jsonify({'error': 'Product not found :()'}), 404
+        else:
+            return jsonify({'error': 'No products found in database'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(port=3002)
+    app.run(port=3002, debug=True)
