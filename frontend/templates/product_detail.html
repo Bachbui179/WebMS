@@ -3,7 +3,7 @@
 {% block content %}
 <main class="container mt-5 flex-grow-1">
     <div class="card mb-4">
-        <img src="{{ product.thumbnail }}" class="card-img-top" alt="{{ product.title }}">
+        <img src="{{ product.images }}" class="card-img-top" alt="{{ product.title }}">
         <div class="card-body">
             <h1 class="card-title">{{ product.title }}</h1>
             <p class="card-text">{{ product.description }}</p>
@@ -11,6 +11,14 @@
             <p class="card-text"><strong>Discount: </strong>{{ product.discount_percentage }}%</p>
             <p class="card-text"><strong>Category: </strong>{{ product.category }}</p>
             <p class="card-text"><strong>Products left: </strong>{{ product.stock }}</p>
+            
+            <form method="post" action="{% url 'add_order_item' item.product_id %}">
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Add to Order</button>
+            </form>
         </div>
     </div>
     <h3>Reviews</h3>
@@ -24,4 +32,3 @@
     </ul>
 </main>
 {% endblock content %}
-    

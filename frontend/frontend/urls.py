@@ -9,7 +9,9 @@ urlpatterns = [
     path('home/', views.home_view, name='home'),
     path('products/', views.product_view, name='products'),
     path('product/<int:id>/', views.product_detail, name='product_detail'),
-    path('cart/', views.cart, name='cart'),
+    path('order/', views.view_order, name='view_order'),
+    path('order/add/<int:item_id>/', views.add_order_item, name='add_order_item'),
+    path('order/remove/<int:item_id>/', views.remove_order_item, name='remove_order_item'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'frontend.views.error_404'

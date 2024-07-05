@@ -11,10 +11,11 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # Enable CORS for all routes
 services = {
     'auth_service': 'http://localhost:3000',
     'product_service': 'http://localhost:3002',
-    'order_service': 'http://localhost:3003',
+    'order_service': 'http://localhost:3001',
 }
 
 product_service_url = 'http://localhost:3002'
+order_service_url= 'http://localhost:3001'
 
 def proxy(service_url):
     try:
@@ -44,10 +45,6 @@ def verify_jwt(token):
         print(f"Error verifying token: {e}")
         return False
 
-# @app.route('/auth_service/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
-# def auth_service_proxy(path):
-#     return proxy(services['auth_service'])
-
 @app.route('/product_service/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def product_service_proxy(path):
     token = request.headers.get('Authorization')
@@ -73,17 +70,22 @@ def product_service_proxy(path):
 def order_service_proxy(path):
     token = request.headers.get('Authorization')
     if token and verify_jwt(token):
-        return proxy(services['order_service'])
-    else:
-        return jsonify({'error': 'Unauthorized'}), 401
+        # Forward the request to the order service
+        url = f'{order_service_url}/{path}'  # Corrected URL construction
+        headers = {key: value for key, value in request.headers if key != 'Host'}
 
-@app.route('/customer_service/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def customer_service_proxy(path):
-    token = request.headers.get('Authorization')
-    if token and verify_jwt(token):
-        return proxy(services['customer_service'])
+        if request.method == 'GET':
+            response = requests.get(url, headers=headers, params=request.args)
+        elif request.method == 'POST':
+            response = requests.post(url, headers=headers, json=request.json)
+        elif request.method == 'PUT':
+            response = requests.put(url, headers=headers, json=request.json)
+        elif request.method == 'DELETE':
+            response = requests.delete(url, headers=headers)
+
+        return (response.content, response.status_code, response.headers.items())
     else:
         return jsonify({'error': 'Unauthorized'}), 401
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(port=5000, debug=True)

@@ -27,36 +27,13 @@
                     <ul
                         class="dropdown-menu bg-dark text-white "
                         aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item text-white" href="#"
-                            >kitchen-accessories</a
-                        >
-
-                        <a class="dropdown-item text-white" href="#"
-                            >furniture</a
-                        >
-
-                        <a class="dropdown-item text-white" href="#"
-                            >groceries</a
-                        >
-
-                        <a class="dropdown-item text-white" href="#"
-                            >fragrances</a
-                        >
-
+                        <a class="dropdown-item text-white" href="#">kitchen-accessories</a>
+                        <a class="dropdown-item text-white" href="#">furniture</a>
+                        <a class="dropdown-item text-white" href="#">groceries</a>
+                        <a class="dropdown-item text-white" href="#">fragrances</a>
                         <a class="dropdown-item text-white" href="#">beauty</a>
-
-                        <a class="dropdown-item text-white" href="#"
-                            >home-decoration</a
-                        >
-
-                        <div></div>
+                        <a class="dropdown-item text-white" href="#">home-decoration</a>
                     </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/cart.html" tabindex="-1">
-                        Cart<i class="bi bi-cart-plus-fill"></i>
-                        <span class="cart-badge badge bg-success">4</span></a
-                    >
                 </li>
             </ul>
             <ul class="navbar-nav mb-2 mb-lg-0 mx-lg-2 order-sm-last">
@@ -71,36 +48,22 @@
                         aria-expanded="false">
                         My Account
                     </a>
-                    <ul
-                        class="dropdown-menu bg-dark"
-                        aria-labelledby="navbarDropdown">
+                    <ul class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
                         <li>
-                            <a
-                                style="color: white"
-                                class="dropdown-item"
-                                href="/#"
-                                data-bs-toggle="modal"
-                                data-bs-target="#exampleModal"
-                                >My Cart</a
-                            >
+                            <a style="color: white" class="dropdown-item" href="{% url 'view_order' %}">
+                                My Cart
+                            </a>
                         </li>
                         <li>
-                            <a
-                                style="color: white"
-                                class="dropdown-item"
-                                href="/#"
-                                data-bs-toggle="modal"
-                                data-bs-target="#exampleModal"
-                                >Profile</a
-                            >
+                            <a style="color: white" class="dropdown-item" href="#">
+                                Profile
+                            </a>
                         </li>
                         <li><hr class="dropdown-divider" /></li>
                         <li>
                             <form action="{% url 'logout' %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-primary">
-                                    Logout
-                                </button>
+                                <button type="submit" class="btn btn-primary">Logout</button>
                             </form>
                         </li>
                     </ul>

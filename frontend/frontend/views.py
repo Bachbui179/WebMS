@@ -81,15 +81,119 @@ def product_detail(request, id):
     if response.status_code == 200:
         products_data = response.json().get('products', [])
         products = [item for sublist in products_data for item in sublist['products']]
-        print(products)
         product = get_product_by_id(products, id)
     return render(request, 'product_detail.html', {'product': product})
 
-def cart(request): 
+def view_order(request):
     token = request.COOKIES.get('access_token')
-    headers = {'Authorization': f'Bearer {token}'}
-    
-    response = requests.get('http://localhost:5000/order_service/orders', headers=headers)
+    if not token:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
 
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json'
+    }
+
+    # Get user email from user_data cookie
+    user_data_cookie = request.COOKIES.get('user_data')
+    if not user_data_cookie:
+        return JsonResponse({'error': 'User data not found'}, status=401)
+
+    try:
+        user_data = json.loads(user_data_cookie.replace("'", '"'))
+        email = user_data.get('email')
+    except (json.JSONDecodeError, IndexError, KeyError) as e:
+        print(f"Error parsing user_data cookie: {e}")
+        return JsonResponse({'error': '1Invalid user data'}, status=400)
+
+    # Prepare the data payload
+    data = {
+        'email': email
+    }
+
+    try:
+        response = requests.post('http://localhost:5000/order_service/order/get_order', headers=headers, json=data)
+        if response.status_code == 200:
+            order_data = response.json()
+            print(order_data)
+            
+            for item in order_data['order']:
+                item['price_after_discount'] = round(item['price'] * (1 - item['discount_percentage'] / 100), 2)
+                item['total'] = round(item['quantity'] * item['price_after_discount'], 2)
+            
+            return render(request, 'order.html', {'order': order_data['order']})
+        else:
+            return JsonResponse({'error': 'Unable to fetch cart data'}, status=response.status_code)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+def remove_order_item(request, item_id):
+    token = request.COOKIES.get('access_token')
+    if not token:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json'
+    }
+
+    user_data_cookie = request.COOKIES.get('user_data')
+    if not user_data_cookie:
+        return JsonResponse({'error': 'User data not found'}, status=401)
+
+    try:
+        user_data = json.loads(user_data_cookie.replace("'", '"'))
+        email = user_data.get('email')
+    except (json.JSONDecodeError, IndexError, KeyError) as e:
+        return JsonResponse({'error': 'Invalid user data'}, status=400)
+
+    data = {'email': email, 'product_id': item_id}
+
+    try:
+        response = requests.post('http://localhost:5000/order_service/order/remove', headers=headers, json=data)
+        if response.status_code == 200:
+            return redirect('view_order')
+        else:
+            return JsonResponse({'error': 'Unable to remove item'}, status=response.status_code)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+def add_order_item(request, item_id):
+    token = request.COOKIES.get('access_token')
+    if not token:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json'
+    }
+
+    user_data_cookie = request.COOKIES.get('user_data')
+    if not user_data_cookie:
+        return JsonResponse({'error': 'User data not found'}, status=401)
+
+    try:
+        user_data = json.loads(user_data_cookie.replace("'", '"'))
+        email = user_data.get('email')
+    except (json.JSONDecodeError, IndexError, KeyError) as e:
+        return JsonResponse({'error': 'Invalid user data'}, status=400)
+
+    quantity = request.POST.get('quantity')
+    if not quantity or int(quantity) < 1:
+        return JsonResponse({'error': 'Invalid quantity'}, status=400)
+
+    data = {'email': email, 'product_id': item_id, 'quantity': int(quantity)}
+
+    try:
+        response = requests.post('http://localhost:5000/order_service/order/add', headers=headers, json=data)
+        if response.status_code == 200:
+            return redirect('view_order')
+        else:
+            return JsonResponse({'error': 'Unable to add item'}, status=response.status_code)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+    
 def error_404(request, exception):
     return render(request, '404_Not_Found.html')
